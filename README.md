@@ -49,6 +49,12 @@ structurally; uses become applications of the exported theorem with its
 assumption proofs; leaves use the `ink_auto` tactic (simp with hypotheses,
 `grind` for ring and linear arithmetic, `omega`).
 
+Named function extensionality (`Forall`) translates to Lean `funext`, including
+quantified uses inside surrounding congruences. Exact integer `Linear` leaves
+are solved independently by Lean. Insertion-sort multiplicity laws translate
+to the literal `Ink.insertSorted` definition; nested Boolean splits use fresh
+hypothesis names. Reports correctly match escaped theorem identifiers.
+
 ## Trust
 
 - `InkPrelude.lean` is the bridge: a Lean proof is about these definitions.

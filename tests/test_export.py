@@ -64,6 +64,19 @@ class Export(unittest.TestCase):
         self.assertEqual(ident('__assumed_a'), '«__assumed_a»')
         self.assertEqual(ident('xs'), 'xs')
 
+    def test_named_extensionality_and_insertion_are_literal_translations(self):
+        from ink_to_lean.export import Proofs,Terms
+        terms=Terms({});proofs=Proofs(terms,{},dict(params={},assumptions=[]))
+        self.assertIn('funext observed',proofs.tactic({'Forall':dict(parameter='observed',body='Normalize')},2))
+        scalar=dict(sort={'Value':'U32'},node={'Free':'x'});sequence=dict(sort={'Value':{'List':'U32'}},node={'Free':'xs'})
+        self.assertEqual(terms.op('list.insert',[scalar,sequence],sequence['sort'],[]),'(Ink.insertSorted x xs)')
+
+    def test_failed_escaped_theorem_names_match_the_report(self):
+        name='bags/sort-observer-u32';escaped=ident(name)
+        source=f'theorem {escaped} :\n    1 = 2 := by\n  rfl\n'
+        failed=failing_theorems(source,['L.lean:3:2: error: false statement'])
+        self.assertIn(ident(name),failed)
+
     def test_statements_file_only_replaces_failed_proofs(self):
         src = 'theorem a (x : Nat) :\n    x = x := by\n  rfl\n\ntheorem b :\n    1 = 1 := by\n  rfl\n'
         out = with_sorry(src, {'a'})

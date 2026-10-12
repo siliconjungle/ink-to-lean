@@ -184,6 +184,7 @@ class Terms:
             'method:at_or': lambda: f'(Ink.atOr {a[0]} {a[1]} {a[2]})',
             'method:scan': lambda: f'(Ink.scan {a[0]})',
             'method:sort': lambda: f'(Ink.sort {a[0]})',
+            'list.insert': lambda: f'(Ink.insertSorted {a[0]} {a[1]})',
             'call:Some': lambda: f'(Option.some {a[0]})',
             'call:None': lambda: f'(Option.none : {sort(s, self.ctx)})',
             'call:Ok': lambda: f'(Except.ok {a[0]} : {sort(s, self.ctx)})',
@@ -254,6 +255,7 @@ class Proofs:
         self.terms = terms
         self.names = names
         self.law = law
+        self.serial = 0
 
     def tactic(self, p, indent):
         pad = ' ' * indent
@@ -264,6 +266,12 @@ class Proofs:
             return f'{pad}ink_auto'
         if k == 'Sym':
             return f'{pad}apply Eq.symm\n' + self.tactic(v, indent)
+        if k == 'Linear':
+            # Lean independently solves the exact integer proposition. Ink's
+            # supplied coefficients confer no authority in this second kernel.
+            return f'{pad}ink_auto'
+        if k == 'Forall':
+            return f'{pad}funext {ident(v["parameter"])}\n'+self.tactic(v['body'],indent)
         if k == 'Trans':
             middle = self.terms.go(v['middle'], [])
             return (f'{pad}calc _ = {middle} := by\n' + self.tactic(v['left'], indent + 6) +
@@ -286,7 +294,8 @@ class Proofs:
             return f'{pad}have h := {name} {args}\n{pad}first | exact h | (simp_all; done) | (rw [h]; done) | ink_auto'
         if k == 'Cases':
             c = self.terms.go(v['condition'], [])
-            return (f'{pad}cases hc : {c} with\n'
+            name=f'hc{self.serial}';self.serial+=1
+            return (f'{pad}cases {name} : {c} with\n'
                     f'{pad}| false =>\n' + self.tactic(v['on_false'], indent + 4) + '\n'
                     f'{pad}| true =>\n' + self.tactic(v['on_true'], indent + 4))
         if k in ('Induction', 'GeneralizedInduction'):
@@ -327,6 +336,11 @@ class Proofs:
             children = [v]
         elif k == 'Trans':
             children = [v['left'], v['right']]
+        elif k == 'Forall':
+            facts=[];self.collect(v['body'],facts)
+            for fact in facts:
+                out.append({'Quantified':dict(parameter=v['parameter'],fact=fact)})
+            return
         for c in children:
             self.collect(c, out)
 
@@ -350,6 +364,27 @@ class Proofs:
     def fact(self, p, name, indent):
         pad = ' ' * indent
         (k, v), = p.items()
+        if k == 'Quantified':
+            parameters=[]
+            while 'Quantified'in p:
+                parameters.append(p['Quantified']['parameter']);p=p['Quantified']['fact']
+            (kind,use),=p.items()
+            sorts={}
+            def walk(t):
+                node=t['node']
+                if isinstance(node,dict):
+                    if 'Free'in node:sorts[node['Free']]=t['sort']
+                    if 'Lambda'in node:walk(node['Lambda'])
+                    if 'Cons'in node:
+                        for child in node['Cons']:walk(child)
+                    if 'Op'in node:
+                        for child in node['Op'][1]:walk(child)
+            for term in use['arguments'].values():walk(term)
+            if any(n not in sorts for n in parameters):return ''
+            if kind!='Use' or use['law']not in self.names:return ''
+            if any(n.startswith('__')and n not in parameters for n in sorts):return ''
+            binders=' '.join(f'({ident(n)} : {sort(sorts[n],self.terms.ctx)})'for n in parameters)
+            return f'{pad}have {name} := fun {binders} => '+self.application(use,self.names[use['law']])
         if not self.closed_in_context(list(v['arguments'].values())):
             return ''
         if k == 'Assume':

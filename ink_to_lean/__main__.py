@@ -15,7 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .export import export
+from .export import export,ident
 
 
 def check(lean, path):
@@ -87,7 +87,7 @@ def main(argv=None):
         result['lean'] = {'errors': len(errors), 'proof_failures': failed}
         for r in report:
             if r['status'] == 'exported':
-                r['lean'] = 'failed' if r['law'] in failed else 'proved'
+                r['lean'] = 'failed' if ident(r['law']) in failed else 'proved'
         if o.statements:
             Path(o.statements).write_text(with_sorry(source, set(failed)))
     if o.report:

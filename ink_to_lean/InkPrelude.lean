@@ -200,6 +200,8 @@ macro "ink_auto" : tactic =>
     | with_reducible rfl
     | (simp_all [Ink.Map.getOr_set_self, Ink.Map.getOr_set_other, Ink.Map.contains_set_self, Ink.Map.getOr_remove_self]; done)
     | (simp_all [Ink.foldUntil, Ink.sumR, Ink.scanFrom, Ink.insertSorted, Ink.sort, Ink.repeatN]; done)
+    | (simp_all [Ink.foldUntil, Ink.sumR, Ink.scanFrom, Ink.insertSorted, Ink.sort, Ink.repeatN] <;> omega)
+    | (simp_all only [Ink.insertSorted, Ink.sort, decide_eq_false_iff_not, decide_eq_true_eq, Bool.false_eq_true, Bool.true_eq_false, List.filter_cons, List.filter_nil, List.length_cons, List.length_nil, ite_true, ite_false] <;> omega)
     | grind
     | (simp_all <;> grind)
     | omega)
