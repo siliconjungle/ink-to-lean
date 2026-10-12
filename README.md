@@ -88,3 +88,8 @@ translator. They remain checked by Ink's inductive kernel; no Lean check of
 those obligations is claimed. Structural equality translates only for exact
 non-floating scalar/list/Option/Result values. Raw-bit float identity is not
 silently translated into Lean's numeric Float32 equality.
+
+## License
+
+Project code and documentation are [MIT licensed](LICENSE). Third-party dependencies,
+vendored projects and research data retain their own licenses and notices.
