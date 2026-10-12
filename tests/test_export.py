@@ -93,3 +93,19 @@ class Lean(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class ContractEvidence(unittest.TestCase):
+    def test_contract_envelope_exports_ordinary_laws(self):
+        bundle,names=load('general-laws')
+        expected=export(bundle,names)
+        self.assertEqual(export(dict(semantics='ink-contracts-v1',knowledge=bundle,state_knowledge=None),names),expected)
+
+    def test_structural_float_equality_is_not_ieee_equality(self):
+        from ink_to_lean.export import Terms,Unsupported
+        def value(t,n):return dict(sort={'Value':t},node=n)
+        bits=value('F32',{'Float':0})
+        with self.assertRaises(Unsupported):Terms({}).op('value:equal',[bits,bits],{'Value':'Bool'},[])
+        floats=value({'List':'F32'},'Nil')
+        with self.assertRaises(Unsupported):Terms({}).op('binary:==',[floats,floats],{'Value':'Bool'},[])
+        word=value('U32',{'Word':3})
+        self.assertIn('decide',Terms({}).op('value:equal',[word,word],{'Value':'Bool'},[]))

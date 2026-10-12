@@ -81,6 +81,14 @@ def value_type(s):
     return None
 
 
+def structural_exact(t):
+    if isinstance(t,str):return t in ('U32','U64','I32','Int','Bool','String','Unit')
+    if not isinstance(t,dict):return False
+    if 'List' in t or 'Option' in t:return structural_exact(next(iter(t.values())))
+    if 'Result' in t:return all(structural_exact(x) for x in t['Result'])
+    return False
+
+
 class Terms:
     """Semantic terms (laws.rs) to Lean expressions. Bound variables are de
     Bruijn indices; each lambda gets a fresh readable name."""
@@ -137,12 +145,19 @@ class Terms:
         a = [self.go(x, bound) for x in args]
         arg_types = [value_type(x['sort']) for x in args]
         out = value_type(s)
+        if name == 'value:equal':
+            if not structural_exact(arg_types[0]):raise Unsupported('structural equality requires an exact non-floating value model')
+            return f'(decide ({a[0]} = {a[1]}))'
         if name == 'apply':
             return f'({a[0]} {a[1]})'
         if name.startswith('binary:'):
             o = name[7:]
             if o in ('+', '-', '*'):
                 return f'({a[0]} {o} {a[1]})'
+            if o in ('==','!=') and arg_types[0] not in ('U32','U64','I32','Int','Bool','F32'):
+                if not structural_exact(arg_types[0]):raise Unsupported('structural equality requires an exact non-floating value model')
+                symbol='=' if o=='==' else '≠'
+                return f'(decide ({a[0]} {symbol} {a[1]}))'
             if o == '==':
                 return f'({a[0]} == {a[1]})'
             if o == '!=':
@@ -367,6 +382,13 @@ class Proofs:
 def export(bundle, names=None, prelude=True):
     """Lean source for every law in the bundle, in dependency order, and a
     report of what was translated."""
+    # Contract evidence carries ordinary independently exportable law bundles.
+    # State declarations retain their distinct first-order proof domain.
+    if bundle.get('semantics')=='ink-contracts-v1':
+        objects={}
+        for key in ('knowledge','state_knowledge'):
+            if bundle.get(key):objects.update(bundle[key]['objects'])
+        bundle={'objects':objects}
     objects = bundle['objects']
     names = names or {}
     by_id = {i: n for n, i in names.items()}

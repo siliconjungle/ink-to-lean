@@ -77,3 +77,14 @@ Each exported theorem is a self-contained statement over the prelude, so it
 can be posted as a problem: the statement with `sorry` from `--statements`,
 the full file as the reference proof. The prelude's definitions must be
 included with the statement.
+
+## Source contract evidence
+
+The exporter also accepts the `ink-contracts-v1` `evidence.json` produced by
+Ink's knowledge-owned contract proof author. Pure contract laws use the same
+translation as ordinary law bundles; names and source bindings confer no proof
+authority. First-order state theorems are reported as unsupported by this Lean
+translator. They remain checked by Ink's inductive kernel; no Lean check of
+those obligations is claimed. Structural equality translates only for exact
+non-floating scalar/list/Option/Result values. Raw-bit float identity is not
+silently translated into Lean's numeric Float32 equality.
