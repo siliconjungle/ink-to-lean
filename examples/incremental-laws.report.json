@@ -1,0 +1,50 @@
+[
+ {
+  "law": "filter_append",
+  "id": "721b0f82b71ae52f49901d43d76639aacc069d179632394e20c53fc811f8fb12",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "group_sum_append",
+  "id": "ed10d8c94f8eb2568d280e24b832cea53b8d35fa98769a2a9d65d199aaf82068",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "filtered_group_sum_append",
+  "id": "0eae431fcbc259893a2f6748c9f3615a5af1b530f620081fded84cbeebb14e9e",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "group_count_append",
+  "id": "2fd6b4fef82f5cae23be63947c86d3e9f732184fe37c33ba38b55b69c3ee92f0",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "sum_append",
+  "id": "6d30dd12648bc0351caca5b83f695f000f2702f8b6944cbdc96cec4c39c36d58",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "join_sum_append_left",
+  "id": "ea3848b46da2b7b61a48c85130eb732f51a228496372af8382a90d6e05f86d24",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "join_sum_append_right",
+  "id": "8dbf32a5b1773b724d6a92ed32f6df964631c1fbfad28b286826ae70d5c09b66",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "sum_split",
+  "id": "e017b62dbf7971d49d80fdae06b64fb4a586e73a47bbf18a09ebb21d4b60c27f",
+  "status": "exported",
+  "lean": "proved"
+ }
+]

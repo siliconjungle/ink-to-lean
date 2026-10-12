@@ -1,0 +1,200 @@
+[
+ {
+  "law": "bool_and_true",
+  "id": "2d27e3bdbd5ad4062ab0b7adbe71f3b03a7e4dc755a5e750bba67f145096bc59",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "buffer_freeze_push",
+  "id": "5552abb24d94a497dc80a12742c26192475dcf733853f5f49afdef5a04c357cb",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "choose_map",
+  "id": "90d63c905a65c2f0e3916db0bb718cf1728a459beadeb03ecd1b491e0d65c869",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "choose_same",
+  "id": "08d22c506a42726a0d09cebc82c8393ea94bb30e5b50be839cfa271023b99720",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "concat_associates",
+  "id": "824d093a054209f4105ad9078d8a1b87f5f6564e7d4fcb4ff604dc79fd42c7ee",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "concat_empty",
+  "id": "a8be620630d3ed6c3fe6f24bb7722a5a52d3e99a94641c2ec89f9190482c2fe0",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "fold_append",
+  "id": "b38fd6595433315b2e101dc17e3a62b0cebdf40af26ebf606820107898f66a34",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "count_append",
+  "id": "54c290718536d03e68c52ccb661b8eb802c98c87e12fe862ff37c0f4fb66c27a",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "filter_append",
+  "id": "94c31cd32ad042f448a10d0a28151567e5dfd470f6d5260b2f8405339d7c0873",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "filter_fusion",
+  "id": "a598f422a5562bd895f5f46fab24f44bb984958a91ee1fcb1046cb2f29c48855",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "fold_congruence",
+  "id": "b93caa2694a35a2e568e3aee050cb50f71e07496d702e3cb5bea16a747b7744d",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "fold_filter",
+  "id": "66e42bc28a0f4d3dd71f3c140e871314838af46afca258c4e9f185469281b758",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "foldl_append",
+  "id": "ba1b5d731f37eeb244c606f22ad9d330431ff64efa9fe47681c6ec559d5ddd8c",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "foldr_map",
+  "id": "6aa62a1e55a625a3552392a8c403053710017661bd37c0dae1dfd327ddee52bc",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "int_distributes",
+  "id": "ae524e21be67b11e4002c4e3177a73c60b6ea3fdbf3c3bce5997c8a7e163b8ef",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "length_append",
+  "id": "ce289633ad08dd15702e97e547e2be5cb2d95e3531c3915f12fc616e525d020c",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "length_map",
+  "id": "5623e17dee668909a9b350e683d8ae7f5d40109ac112b0fdc012fc8ddd865c9e",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "map_append",
+  "id": "175e908bbfb8181e4866b85478e205b4f62b2d8e6ec76ae57593594d564a1d5a",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "map_fusion",
+  "id": "e5166515f0460d7cbfb07d41e46d8063529af4462526598ba4c9c6f86b78eb92",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "map_identity",
+  "id": "03eb7ef13b483e38cecd0c32ba8212fad2a418e9a1cb056c995d399bb6a7e4c6",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "map_remove_get",
+  "id": "49de187e1992b5cb3448504094d3c7af8133f9f556b71c0c65eee2f6d9fde96c",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "map_set_contains",
+  "id": "2bea6e990e74bcfdf28402d067904c0cf9894f9285f0bc2c7428acfcd903f361",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "map_set_get",
+  "id": "7b81c45bbffb2ed05582627355ed0f4355bd8f928e3a67544bac51933215a3c5",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "map_set_get_other",
+  "id": "5f2322310a4034ad20d2a0f32f9b275003296ef66b2a21480c9f14c85bdd78ee",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "option_map_fusion",
+  "id": "f2440705451e00d94a6555cb6a210696d17d6d3e80acd77e57c5fcc91586302f",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "option_map_identity",
+  "id": "d594226d2cc95bd29d09171557ad97d12a0018dc7cecd2079f98d53208d6f35d",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "option_ok_or_map",
+  "id": "6f7996bf5c4b049f4d6536324db85506c4376c98a6fcd79555f01fdff2cba991",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "point_x",
+  "id": "ba17c57434eb2b812dbb3cd58851c2bf9512d2e9e0185baa8d09cedd8882a173",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "result_map_fusion",
+  "id": "91df142ca62d25f2d582775d0cdc5724811dc11c95aaec0f5a057f9e3308c65c",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "result_maps_commute",
+  "id": "b0ce4e1207a7140b723d8eccc2f7b9601c0f1440440e327faf5116a853cbda19",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "sum_append_u64",
+  "id": "8f46105739440a8d0560f97e1c06c08df84a2697a1f116d35122a052a59c8b34",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "vector_y",
+  "id": "7480be4fe3e620e942117f1ef574acabb3a16368e49d36025eb0c1a2baf304bf",
+  "status": "exported",
+  "lean": "proved"
+ },
+ {
+  "law": "word_wraps",
+  "id": "4f22cac55797804c56c0d442fbec02ae60023d26d7772398690219262585b256",
+  "status": "exported",
+  "lean": "proved"
+ }
+]
