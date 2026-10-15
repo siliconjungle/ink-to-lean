@@ -38,7 +38,7 @@ def lean_errors(source):
 
 class Export(unittest.TestCase):
     def test_every_law_is_exported_with_a_proof(self):
-        for name, count in (('general-laws', 33), ('incremental-laws', 8)):
+        for name, count in (('general-laws', 33), ('incremental-laws', 8), ('approximation-laws', 12)):
             bundle, names = load(name)
             source, report = export(bundle, names)
             self.assertEqual(sum(r['status'] == 'exported' for r in report), count)
@@ -88,7 +88,7 @@ class Export(unittest.TestCase):
 @unittest.skipUnless(LEAN, 'no Lean binary')
 class Lean(unittest.TestCase):
     def test_lean_proves_every_exported_law(self):
-        for name in ('general-laws', 'incremental-laws'):
+        for name in ('general-laws', 'incremental-laws', 'approximation-laws'):
             bundle, names = load(name)
             source, _ = export(bundle, names)
             self.assertEqual(lean_errors(source), [], name)
@@ -108,6 +108,48 @@ if __name__ == '__main__':
     unittest.main()
 
 class ContractEvidence(unittest.TestCase):
+    def test_reused_helper_name_cannot_change_its_translated_meaning(self):
+        value=lambda n:dict(sort={'Value':'U32'},node={'Word':n})
+        def law(n):
+            return dict(params={},conditions=[],**{'from':dict(sort={'Value':'U32'},node={'Op':['call:helper',[]]}),'to':value(n)},proof='Normalize',
+                definition_context=dict(definitions={'helper':dict(definition=dict(params=[],result='U32',body=value(n)))}))
+        bundle=dict(objects={name:dict(payload=law(n),semantics='ink-conditional-laws-v1',dependencies=[])for name,n in [('a',0),('b',1)]})
+        source,report=export(bundle,{'first':'a','second':'b'})
+        self.assertEqual([row['status']for row in report],['exported','unsupported'])
+        self.assertIn('conflicting definition context',report[1]['reason'])
+        self.assertEqual(source.count('@[simp] def helper '),1)
+
+    def test_unsupported_helper_does_not_hide_a_later_required_declaration(self):
+        value=lambda t,node:dict(sort={'Value':t},node=node)
+        one=value('U32',{'Word':1});floating=value('F32',{'Float':0})
+        context=dict(records={'Needed':[['x','U32']]},definitions={})
+        law=dict(params={},conditions=[],**{'from':one,'to':one},proof='Normalize',definition_context=context)
+        bad=copy.deepcopy(law)
+        bad['definition_context']['definitions']['bad_float']=dict(definition=dict(params=[],result='F32',body=value('F32',{'Op':['binary:+',[floating,floating]]})))
+        bundle=dict(objects={name:dict(payload=payload,semantics='ink-conditional-laws-v1',dependencies=[])for name,payload in [('a',bad),('b',law)]})
+        source,report=export(bundle,{'first':'a','second':'b'})
+        self.assertEqual([row['status']for row in report],['unsupported','exported'])
+        self.assertIn('structure Needed where',source)
+
+    def test_float_arithmetic_is_explicitly_unsupported_by_the_independent_bridge(self):
+        from ink_to_lean.export import Terms, Unsupported
+        value = dict(sort={'Value':'F32'},node={'Float':0x7fc01234})
+        for operation in ('binary:+','binary:-','binary:*','neg','call:sum'):
+            with self.subTest(operation=operation), self.assertRaises(Unsupported):
+                Terms({}).op(operation,[value,value] if operation.startswith('binary:') else [value],{'Value':'F32'},[])
+
+    def test_a_false_error_composition_is_not_proved_by_lean(self):
+        if not LEAN:self.skipTest('no Lean binary')
+        bundle,names=load('approximation-laws');bundle=copy.deepcopy(bundle)
+        law=bundle['objects'][names['approximation/compose_upper']]['payload']
+        # Change a-c <= first+second to a-c <= first+second-1.
+        comparison=law['from']['node']['Op'][1]
+        limit=comparison[1]
+        comparison[1]=dict(sort={'Value':'Int'},node={'Op':['binary:-',[limit,dict(sort={'Value':'Int'},node={'Word':1})]]})
+        source,report=export(bundle,names)
+        self.assertTrue(all(row['status']=='exported' for row in report),report)
+        self.assertIn(ident('approximation/compose_upper'),failing_theorems(source,lean_errors(source)))
+
     def test_contract_envelope_exports_ordinary_laws(self):
         bundle,names=load('general-laws')
         expected=export(bundle,names)

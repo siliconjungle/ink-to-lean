@@ -25,6 +25,7 @@ Current results (Lean 4.34.1, core only):
 |---|---:|---:|
 | `general-laws.ink` (lists, folds over any monoid, Option/Result, maps, buffers, records, vectors, `Int`, words, Bool) | 33 | 33 |
 | `incremental-laws.ink` (delta rules for sum, group-by, join, views over views) | 8 | 8 |
+| `approximation-laws.ink` (exact error composition/widening and finite probability spaces) | 12 | 12 |
 
 The exported files are in `examples/`.
 
@@ -64,7 +65,9 @@ hypothesis names. Reports correctly match escaped theorem identifiers.
 - Maps are modelled on all association lists, a superset of the maps Ink can
   build (sorted, unique keys); a law proved over the superset holds for Ink.
 - `Float32` follows IEEE hardware arithmetic, not Ink's canonical-NaN binary32
-  contract; laws with float arithmetic should not be exported as evidence.
+  contract. Floating arithmetic, negation and sums explicitly report unsupported
+  until the bridge has a faithful model; they cannot receive a misleading Lean
+  arithmetic verdict. Structural float equality retains its separate rejection.
 - Nothing here is trusted by Ink, and Lean acceptance grants no rewrite
   authority in Ink.
 

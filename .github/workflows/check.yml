@@ -1,0 +1,17 @@
+name: Independent Lean checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  laws-and-negative-controls:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the pinned independent kernel
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain leanprover/lean4:v4.34.1
+      - name: Check all laws, reject false statements and unsupported float semantics
+        run: INK_TO_LEAN_LEAN="$HOME/.elan/bin/lean" python3 -m unittest discover -s tests -v

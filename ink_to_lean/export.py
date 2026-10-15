@@ -152,6 +152,8 @@ class Terms:
             return f'({a[0]} {a[1]})'
         if name.startswith('binary:'):
             o = name[7:]
+            if o in ('+', '-', '*') and 'F32' in arg_types:
+                raise Unsupported('F32 arithmetic requires Ink canonical-NaN binary32 semantics, absent from the Lean bridge')
             if o in ('+', '-', '*'):
                 return f'({a[0]} {o} {a[1]})'
             if o in ('==','!=') and arg_types[0] not in ('U32','U64','I32','Int','Bool','F32'):
@@ -168,6 +170,8 @@ class Terms:
                 return f'({a[0]} {o} {a[1]})'
             raise Unsupported('binary ' + o)
         if name == 'neg':
+            if out == 'F32':
+                raise Unsupported('F32 negation requires a faithful raw-bit Lean model')
             return f'(-{a[0]})'
         simple = {
             'call:choose': lambda: f'(if {a[0]} then {a[1]} else {a[2]})',
@@ -200,6 +204,8 @@ class Terms:
         if name in simple:
             return simple[name]()
         if name == 'call:sum':
+            if out == 'F32':
+                raise Unsupported('F32 sum requires Ink canonical-NaN binary32 semantics, absent from the Lean bridge')
             return f'(Ink.sumL {a[0]})' if out == 'F32' else f'(Ink.sumR {a[0]})'
         if name == 'call:count':
             return f'({a[0]}.length.toUInt64)' if out == 'U64' else f'(({a[0]}.length : Nat) : Int)'
@@ -448,16 +454,20 @@ def export(bundle, names=None, prelude=True):
     if prelude:
         out.append((Path(__file__).parent / 'InkPrelude.lean').read_text())
     out.append('namespace InkLaws\n')
-    declared, exported = set(), {}
+    declared, exported = {}, {}
     for i in order:
         law = laws[i]
         name = by_id.get(i, 'law_' + i[:12])
         ctx = {'functions': {}}
         try:
-            decls = context_declarations(law, ctx, declared)
+            # Unsupported helpers must not mark declarations as already emitted:
+            # later laws may need the same records/functions in their own context.
+            pending_declared = dict(declared)
+            decls = context_declarations(law, ctx, pending_declared)
             text = theorem(name, law, ctx, exported)
             out.extend(decls)
             out.append(text)
+            declared = pending_declared
             exported[i] = (name, law)
             report.append({'law': name, 'id': i, 'status': 'exported'})
         except Unsupported as e:
@@ -470,26 +480,31 @@ def context_declarations(law, ctx, declared):
     """Records, enums and helper functions of a law's definition context."""
     context = law.get('definition_context') or {}
     decls = []
+    def reserve(name, kind, meaning):
+        descriptor = json.dumps([kind, meaning], sort_keys=True, separators=(',', ':'))
+        if name in declared:
+            if declared[name] != descriptor:
+                raise Unsupported('conflicting definition context for ' + name)
+            return False
+        declared[name] = descriptor
+        return True
     for name, fields in sorted((context.get('records') or {}).items()):
         ctx.setdefault('records', {})[name] = fields
-        if name in declared:
+        if not reserve(name, 'record', fields):
             continue
-        declared.add(name)
         body = '\n'.join(f'  {ident(f)} : {ty(t, ctx)}' for f, t in fields)
         decls.append(f'structure {ident(name)} where\n{body}\nderiving Repr\n')
     for name, variants in sorted((context.get('enums') or {}).items()):
-        if name in declared:
+        if not reserve(name, 'enum', variants):
             continue
-        declared.add(name)
         decls.append(f'inductive {ident(name)} where\n' + '\n'.join(f'  | {ident(v)}' for v in variants) + '\nderiving Repr, DecidableEq\n')
     for name, bound in sorted((context.get('definitions') or {}).items()):
         d = bound['definition']
         ctx['functions'][name] = d
-        if name in declared:
+        if not reserve(name, 'function', d):
             continue
         if any(callee == name for callee in d.get('callees', {})):
             raise Unsupported('recursive helper ' + name)
-        declared.add(name)
         terms = Terms(ctx)
         params = ' '.join(f'({ident(n)} : {ty(t, ctx)})' for n, t in d['params'])
         decls.append(f'@[simp] def {ident(name)} {params} : {ty(d["result"], ctx)} :=\n  {terms.go(d["body"], [])}\n')
